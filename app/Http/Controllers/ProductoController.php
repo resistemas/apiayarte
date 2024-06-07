@@ -223,4 +223,23 @@ class ProductoController extends Controller
             'data' => $producto
         ],200);
     }
+
+    public function productoRelacionado($categoria){
+        $producto = Producto::with('vendedor:id,nombresApellidos,photo')->with('categoria:id,categoria')
+        ->select('id','usuario_id','categoria_id','codigo','producto','descripcion','photo_video','precio','estado')
+        ->where('categoria_id',$categoria)->get();
+
+        if($producto->isEmpty()){
+            return response()->json([
+                'message' => "Productos Relacionados",
+                'status' => false
+            ],402);
+        }
+
+        return response()->json([
+            'message' => "Productos Relacionados",
+            'status' => true,
+            'data' => $producto
+        ],200);
+    }
 }

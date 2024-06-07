@@ -45,3 +45,4 @@ $router->group(["middleware" => "jwt.auth"], function() use ($router){
 $router->get("/producto/masvendido", ["uses" => "ProductoController@masVendidos"]);
 $router->get("/producto/relacionados", ["uses" => "ProductoController@relacionado"]);
 $router->get("/producto/{producto}/detalle", ["uses" => "ProductoController@detalle"]);
+$router->get("/producto/{categoria}/relacionado", ["uses" => "ProductoController@productoRelacionado"]);
