@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Favorito;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class FavoritoController extends Controller
 {
@@ -15,37 +16,40 @@ class FavoritoController extends Controller
     }
 
     public function store(){
-        $validatte = $this->validate($this->request, [
-            "usuario_id" => "required|string",
+
+        $validate = Validator::make($this->request->all(),[
+            "cliente_id" => "required|string",
             "producto_id" => "required|string",
-            "estado" => "required|string",
+            "estado" => "required|string"
         ]);
 
-        if($validatte){
-            $req = Favorito::created([
-                "usuario_id" => $validatte["usuario_id"],
-                "producto_id" => $validatte["producto_id"],
-                "estado" => $validatte["estado"],
-            ]);
-
-            if($req){
-                return response()->json([
-                    'message' => "Favoritos, Agregado Correctamente",
-                    'status' => true,
-                    'data' => $req
-                ], 200);
-            }
-
+        if($validate->fails()){
             return response()->json([
-                'message' => "Sucedio algo al proceder con la solicitud.",
-                'status' => false
-            ],402);
+                "message" => "Campos Requeridos",
+                "status" => false,
+                "data" => $validate->errors()
+            ], 400);
+        }
+        
+        $req = Favorito::create([
+            "cliente_id" =>$this->request->input("cliente_id"),
+            "producto_id" =>$this->request->input("producto_id"),
+            "estado" =>$this->request->input("estado"),
+        ]);
+
+        if($req){
+            return response()->json([
+                'message' => "Favoritos, Agregado Correctamente",
+                'status' => true,
+                'data' => $req
+            ], 200);
         }
 
         return response()->json([
             'message' => "Sucedio algo al proceder con la solicitud.",
             'status' => false
         ],402);
+        
     }    
 
     public function destroy($favorito){
@@ -56,7 +60,8 @@ class FavoritoController extends Controller
             ],402);
         }
 
-        $req = Favorito::find($favorito)->update([
+        $req = Favorito::find($favorito);
+        $req->update([
             "estado" => "Eliminado",
         ]);
 
@@ -87,7 +92,7 @@ class FavoritoController extends Controller
         $items = Favorito::with("cliente:id,codigo,nombresApellidos,usuario")
         ->with("producto:id,categoria_id,codigo,producto,descripcion,photo_video,precio,estado")
         ->select('id','cliente_id','producto_id','estado')
-        ->where("cliente_id",$usuario)
+        ->where("cliente_id",$usuario)->where('estado','<>','Eliminado')
         ->orderBy('id','asc')->get();
 
         if($items->isEmpty()){

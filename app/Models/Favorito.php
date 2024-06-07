@@ -12,7 +12,7 @@ class Favorito extends Model
         'cliente_id', 'producto_id', 'estado',
     ];
 
-    public function clietne()
+    public function cliente()
     {
         return $this->belongsTo(User::class, 'cliente_id');
     }

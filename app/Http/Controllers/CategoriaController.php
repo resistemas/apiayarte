@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Categoria;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class CategoriaController extends Controller
 {
@@ -15,35 +16,38 @@ class CategoriaController extends Controller
     }
 
     public function store(){
-        $validatte = $this->validate($this->request, [
+
+        $validate = Validator::make($this->request->all(),[
             "categoria" => "required|string",
-            "estado" => "required|string",
+            "estado" => "required|string"
         ]);
 
-        if($validatte){
-            $req = Categoria::created([
-                "categoria" => $validatte["categoria"],
-                "estado" => $validatte["estado"],
-            ]);
+        if($validate->fails()){
+            return response()->json([
+                "message" => "Campos Requeridos",
+                "status" => false,
+                "data" => $validate->errors()
+            ], 400);
+        }
+        
+        $req = Categoria::create([
+            "categoria" => $this->request->input("categoria"),
+            "estado" => $this->request->input("estado"),
+        ]);
 
-            if($req){
-                return response()->json([
-                    'message' => "Categoria, Agregado Correctamente",
-                    'status' => true,
-                    'data' => $req
-                ], 200);
-            }
-
+        if($req){
+            return response()->json([
+                'message' => "Categoria, Agregado Correctamente",
+                'status' => true,
+                'data' => $req
+            ], 200);
+        }else{
             return response()->json([
                 'message' => "Sucedio algo al proceder con la solicitud.",
                 'status' => false
             ],402);
-        }
-
-        return response()->json([
-            'message' => "Sucedio algo al proceder con la solicitud.",
-            'status' => false
-        ],402);
+        }       
+    
     }
 
     public function update($categoria){
@@ -54,29 +58,32 @@ class CategoriaController extends Controller
             ],402);
         }
 
-        $validatte = $this->validate($this->request, [
+        $validate = Validator::make($this->request->all(),[
             "categoria" => "required|string",
-            "estado" => "required|string",
+            "estado" => "required|string"
         ]);
 
-        if($validatte){
-            $req = Categoria::find($categoria)->update([
-                "categoria" => $validatte["categoria"],
-                "estado" => $validatte["estado"],
-            ]);
-
-            if($req){
-                return response()->json([
-                    'message' => "Categoria, Actualizado Correctamente",
-                    'status' => true,
-                    'data' => $req
-                ], 200);
-            }
-
+        if($validate->fails()){
             return response()->json([
-                'message' => "Sucedio algo al proceder con la solicitud.",
-                'status' => false
-            ],402);
+                "message" => "Campos Requeridos",
+                "status" => false,
+                "data" => $validate->errors()
+            ], 400);
+        }
+
+        
+        $req = Categoria::find($categoria);
+        $req->update([
+            "categoria" => $this->request->input("categoria"),
+            "estado" => $this->request->input("estado"),
+        ]);
+
+        if($req){
+            return response()->json([
+                'message' => "Categoria, Actualizado Correctamente",
+                'status' => true,
+                'data' => $req
+            ], 200);
         }
 
         return response()->json([
@@ -93,7 +100,8 @@ class CategoriaController extends Controller
             ],402);
         }
 
-        $req = Categoria::find($categoria)->update([
+        $req = Categoria::find($categoria);
+        $req->update([
             "estado" => "Eliminado",
         ]);
 
@@ -115,6 +123,7 @@ class CategoriaController extends Controller
     public function show(){
 
         $items = Categoria::select('id','categoria','estado')
+        ->where('estado','<>','Eliminado')
         ->orderBy('id','asc')->get();
 
         if($items->isEmpty()){

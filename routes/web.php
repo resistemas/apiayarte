@@ -33,7 +33,7 @@ $router->group(["middleware" => "jwt.auth"], function() use ($router){
     $router->post("/categoria", ["uses" => "CategoriaController@store"]);
     $router->put("/categoria/{categoria}/update", ["uses" => "CategoriaController@update"]);
     $router->delete("/categoria/{categoria}/destroy", ["uses" => "CategoriaController@destroy"]);
-    $router->get("/categoria/{producto}/detalle", ["uses" => "CategoriaController@detalle"]);
+    $router->get("/categoria/{categoria}/detalle", ["uses" => "CategoriaController@detalle"]);
 
     //RUTAS DE FAVORITOS
     $router->get("/favorito/{usuario}/lista", ["uses" => "FavoritoController@show"]);
