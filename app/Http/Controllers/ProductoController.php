@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DetalleVenta;
 use App\Models\Producto;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class ProductoController extends Controller
 {
     private $request;
+    private $modulo = "Producto";
 
     public function __construct(Request $request)
     {
@@ -15,7 +18,8 @@ class ProductoController extends Controller
     }
 
     public function store(){
-        $validatte = $this->validate($this->request, [
+
+        $validate = Validator::make($this->request->all(),[
             "usuario_id" => "required|string",
             "categoria_id" => "required|string",
             "codigo" => "required|string",
@@ -26,30 +30,31 @@ class ProductoController extends Controller
             "estado" => "required|string",
         ]);
 
-        if($validatte){
-            $req = Producto::created([
-                "usuario_id" => $validatte["usuario_id"],
-                "categoria_id" => $validatte["categoria_id"],
-                "codigo" => $validatte["codigo"],
-                "producto" => $validatte["producto"],
-                "descripcion" => $validatte["descripcion"],
-                "photo_video" => $validatte["photo_video"],
-                "precio" => $validatte["precio"],
-                "estado" => $validatte["estado"],
-            ]);
-
-            if($req){
-                return response()->json([
-                    'message' => "Producto, Agregado Correctamente",
-                    'status' => true,
-                    'data' => $req
-                ], 200);
-            }
-
+        if($validate->fails()){
             return response()->json([
-                'message' => "Sucedio algo al proceder con la solicitud.",
-                'status' => false
-            ],402);
+                "message" => "Campos Requeridos",
+                "status" => false,
+                "data" => $validate->errors()
+            ], 400);
+        }
+
+        $req = Producto::create([
+            "usuario_id" => $this->request->input("usuario_id"),
+            "categoria_id" => $this->request->input("categoria_id"),
+            "codigo" => $this->request->input("codigo"),
+            "producto" => $this->request->input("producto"),
+            "descripcion" => $this->request->input("descripcion"),
+            "photo_video" => $this->request->input("photo_video"),
+            "precio" => $this->request->input("precio"),
+            "estado" => $this->request->input("estado"),
+        ]);
+
+        if($req){
+            return response()->json([
+                'message' => $this->modulo . ", Agregado Correctamente",
+                'status' => true,
+                'data' => $req
+            ], 200);
         }
 
         return response()->json([
@@ -66,7 +71,7 @@ class ProductoController extends Controller
             ],402);
         }
 
-        $validatte = $this->validate($this->request, [
+        $validate = Validator::make($this->request->all(),[
             "usuario_id" => "required|string",
             "categoria_id" => "required|string",
             "codigo" => "required|string",
@@ -77,30 +82,32 @@ class ProductoController extends Controller
             "estado" => "required|string",
         ]);
 
-        if($validatte){
-            $req = Producto::find($producto)->update([
-                "usuario_id" => $validatte["usuario_id"],
-                "categoria_id" => $validatte["categoria_id"],
-                "codigo" => $validatte["codigo"],
-                "producto" => $validatte["producto"],
-                "descripcion" => $validatte["descripcion"],
-                "photo_video" => $validatte["photo_video"],
-                "precio" => $validatte["precio"],
-                "estado" => $validatte["estado"],
-            ]);
-
-            if($req){
-                return response()->json([
-                    'message' => "Producto, Actualizado Correctamente",
-                    'status' => true,
-                    'data' => $req
-                ], 200);
-            }
-
+        if($validate->fails()){
             return response()->json([
-                'message' => "Sucedio algo al proceder con la solicitud.",
-                'status' => false
-            ],402);
+                "message" => "Campos Requeridos",
+                "status" => false,
+                "data" => $validate->errors()
+            ], 400);
+        }
+
+
+        $req = Producto::find($producto)->update([
+            "usuario_id" => $this->request->input("usuario_id"),
+            "categoria_id" => $this->request->input("categoria_id"),
+            "codigo" => $this->request->input("codigo"),
+            "producto" => $this->request->input("producto"),
+            "descripcion" => $this->request->input("descripcion"),
+            "photo_video" => $this->request->input("photo_video"),
+            "precio" => $this->request->input("precio"),
+            "estado" => $this->request->input("estado"),
+        ]);
+
+        if($req){
+            return response()->json([
+                'message' => $this->modulo . ", Actualizado Correctamente",
+                'status' => true,
+                'data' => $req
+            ], 200);
         }
 
         return response()->json([
@@ -117,13 +124,14 @@ class ProductoController extends Controller
             ],402);
         }
 
-        $req = Producto::find($producto)->update([
+        $req = Producto::find($producto);
+        $req->update([
             "estado" => "Eliminado",
         ]);
 
         if($req){
             return response()->json([
-                'message' => "Producto, Eliminado Correctamente",
+                'message' => $this->modulo . ", Eliminado Correctamente",
                 'status' => true,
                 'data' => $req
             ], 200);
@@ -146,18 +154,18 @@ class ProductoController extends Controller
 
         $producto = Producto::with('vendedor:id,nombresApellidos,photo')->with('categoria:id,categoria')
         ->select('id','usuario_id','categoria_id','codigo','producto','descripcion','photo_video','precio','estado')
-        ->where('usuario_id',$usuario)
+        ->where('usuario_id', $usuario)
         ->orderBy('id','asc')->get();
 
         if($producto->isEmpty()){
             return response()->json([
-                'message' => "Listado de Productos",
+                'message' => "Listado de " . $this->modulo,
                 'status' => false
             ],402);
         }
 
         return response()->json([
-            'message' => "Listado de Productos",
+            'message' => "Listado de " . $this->modulo,
             'status' => true,
             'data' => $producto
         ], 200);
@@ -166,19 +174,21 @@ class ProductoController extends Controller
     }
 
     public function masVendidos(){
-        $producto = Producto::with('vendedor:id,nombresApellidos,photo')->with('categoria:id,categoria')
-        ->select('id','usuario_id','categoria_id','codigo','producto','descripcion','photo_video','precio','estado')
-        ->orderBy('id','asc')->get();
+        $producto = DetalleVenta::with(['producto' => function($query){
+            $query->with('vendedor:id,nombresApellidos,photo')->with('categoria:id,categoria')
+            ->select('id','usuario_id','categoria_id','codigo','producto','descripcion','photo_video','precio','estado');
+        }])->select('id','venta_id','producto_id','cantidad','total')
+        ->groupBy('producto_id')->orderBy('producto_id','asc')->limit(10)->get();
 
         if($producto->isEmpty()){
             return response()->json([
-                'message' => "Productos Mas Vendidos",
+                'message' => $this->modulo. " Mas Vendidos",
                 'status' => false
             ],402);
         }
 
         return response()->json([
-            'message' => "Productos Mas Vendidos",
+            'message' => $this->modulo. " Mas Vendidos",
             'status' => true,
             'data' => $producto
         ], 200);
@@ -186,20 +196,20 @@ class ProductoController extends Controller
 
     }
 
-    public function relacionado(){
+    public function nuevos(){
         $producto = Producto::with('vendedor:id,nombresApellidos,photo')->with('categoria:id,categoria')
         ->select('id','usuario_id','categoria_id','codigo','producto','descripcion','photo_video','precio','estado')
-        ->orderBy('id','desc')->get();
+        ->orderBy('id','desc')->limit(10)->get();
 
         if($producto->isEmpty()){
             return response()->json([
-                'message' => "Productos Mas Vendidos",
+                'message' => $this->modulo . " Nuevos",
                 'status' => false
             ],402);
         }
 
         return response()->json([
-            'message' => "Productos Relacionados",
+            'message' => $this->modulo . " Nuevos",
             'status' => true,
             'data' => $producto
         ],200);
@@ -212,13 +222,13 @@ class ProductoController extends Controller
 
         if($producto->isEmpty()){
             return response()->json([
-                'message' => "Productos Mas Vendidos",
+                'message' => $this->modulo . " Detalle",
                 'status' => false
             ],402);
         }
 
         return response()->json([
-            'message' => "Productos Mas Vendidos",
+            'message' => $this->modulo . " Detalle",
             'status' => true,
             'data' => $producto
         ],200);
@@ -231,13 +241,13 @@ class ProductoController extends Controller
 
         if($producto->isEmpty()){
             return response()->json([
-                'message' => "Productos Relacionados",
+                'message' => $this->modulo . " Relacionados",
                 'status' => false
             ],402);
         }
 
         return response()->json([
-            'message' => "Productos Relacionados",
+            'message' => $this->modulo . " Relacionados",
             'status' => true,
             'data' => $producto
         ],200);

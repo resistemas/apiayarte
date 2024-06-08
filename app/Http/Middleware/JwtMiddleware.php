@@ -45,7 +45,7 @@ class JwtMiddleware
             ], 400);
         }
 
-        $user = User::find($credentials->sub->id);
+        $user = User::with('roles:id,rol,estado')->find($credentials->sub->id);
 
         $request->auth = $user;
 

@@ -23,5 +23,50 @@ class UsuarioSeeder extends Seeder
             "usuario" => "Administrador",
             "password" => Hash::make("Admin123")
         ]);
+
+        DB::table("users")->insert([
+            "rol_id" => 2,
+            "codigo" => Str::upper(Str::random(10)),
+            "nombresApellidos" => "ALDO QUISPE HUAMANTINCO",
+            "correoElectronico" => "aldoquispe@gmail.com",
+            "usuario" => "AldoQuispe",
+            "password" => Hash::make("Admin123")
+        ]);
+
+        DB::table("users")->insert([
+            "rol_id" => 2,
+            "codigo" => Str::upper(Str::random(10)),
+            "nombresApellidos" => "KATHERIN CAYLLAHUA CH.",
+            "correoElectronico" => "katherin@gmail.com",
+            "usuario" => "KatherinCay",
+            "password" => Hash::make("Admin123")
+        ]);
+
+        DB::table("users")->insert([
+            "rol_id" => 3,
+            "codigo" => Str::upper(Str::random(10)),
+            "nombresApellidos" => "LUIS ALBERTO DE LA CRUZ",
+            "correoElectronico" => "luisalberto@gmail.com",
+            "usuario" => "LuisAlberto",
+            "password" => Hash::make("Admin123")
+        ]);
+
+        DB::table("users")->insert([
+            "rol_id" => 3,
+            "codigo" => Str::upper(Str::random(10)),
+            "nombresApellidos" => "JOSE QUISPE AQUINO",
+            "correoElectronico" => "josequispe@gmail.com",
+            "usuario" => "Josefita",
+            "password" => Hash::make("Admin123")
+        ]);
+
+        DB::table("users")->insert([
+            "rol_id" => 3,
+            "codigo" => Str::upper(Str::random(10)),
+            "nombresApellidos" => "TAIS OSCORIMA CANCHARI",
+            "correoElectronico" => "taisoscorima@gmail.com",
+            "usuario" => "TaisOscorima",
+            "password" => Hash::make("Admin123")
+        ]);
     }
 }

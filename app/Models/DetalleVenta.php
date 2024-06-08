@@ -9,7 +9,7 @@ class DetalleVenta extends Model
     protected $table  = "detalle_ventas";
 
     protected $fillable = [
-        'venta_id', 'producto_id', 'cantidad', 'total', 'estado',
+        'id','venta_id', 'producto_id', 'cantidad', 'total', 'estado',
     ];
 
     public function venta()
@@ -20,5 +20,6 @@ class DetalleVenta extends Model
     public function producto()
     {
         return $this->belongsTo(Producto::class, 'producto_id');
+        // return $this->belongsToMany(DetalleVenta::class, 'productos','id','id',null,'producto_id','productos');
     }
 }
