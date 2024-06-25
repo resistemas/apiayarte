@@ -24,7 +24,7 @@ $router->get("/command/migartion", function(){
     Artisan::call("migrate:fresh --seed");
 });
 
-$router->post("/auth/login", ["uses" => "AuthController@authenticate"]);
+
 $router->group(["middleware" => "jwt.auth"], function() use ($router){
 
     //RUTAS DE USUARIO
@@ -32,7 +32,6 @@ $router->group(["middleware" => "jwt.auth"], function() use ($router){
 
     //RUTAS DE USUARIOS - ADMIN
     $router->get("/usuario/lista", ["uses" => "UsuarioController@show"]);
-    $router->post("/usuario", ["uses" => "UsuarioController@store"]);
     $router->put("/usuario/{usuario}/update", ["uses" => "UsuarioController@update"]);
     $router->delete("/usuario/{usuario}/destroy", ["uses" => "UsuarioController@destroy"]);
     $router->get("/usuario/{usuario}/detalle", ["uses" => "UsuarioController@detalle"]);
@@ -55,6 +54,10 @@ $router->group(["middleware" => "jwt.auth"], function() use ($router){
     $router->post("/favorito", ["uses" => "FavoritoController@store"]);
     $router->delete("/favorito/{favorito}/destroy", ["uses" => "FavoritoController@destroy"]);
 });
+
+// RUTAS DE USUARIO
+$router->post("/auth/login", ["uses" => "AuthController@authenticate"]);
+$router->post("/usuario", ["uses" => "UsuarioController@store"]);
 
 //RUTAS DE PRODUCTOS PUBLICO
 $router->get("/producto/masvendido", ["uses" => "ProductoController@masVendidos"]);

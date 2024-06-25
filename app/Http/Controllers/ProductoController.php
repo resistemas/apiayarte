@@ -218,7 +218,7 @@ class ProductoController extends Controller
     public function detalle($producto){
         $producto = Producto::with('vendedor:id,nombresApellidos,photo')->with('categoria:id,categoria')
         ->select('id','usuario_id','categoria_id','codigo','producto','descripcion','photo_video','precio','estado')
-        ->where('id',$producto)->get();
+        ->where('id',$producto)->limit(6)->get();
 
         if($producto->isEmpty()){
             return response()->json([

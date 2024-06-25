@@ -33,7 +33,7 @@ class AuthController extends Controller
     public function authenticate(User $user)
     {
         $validate = Validator::make($this->request->all(),[
-            "usuario" => "required|string",
+            "email" => "required|string|email",
             "password" => "required|string"
         ]);
 
@@ -42,23 +42,23 @@ class AuthController extends Controller
                 "message" => "Campos Requeridos",
                 "status" => false,
                 "data" => $validate->errors()
-            ], 400);
+            ], 202);
         }
 
-        $user = User::where("usuario", $this->request->input("usuario"))->where("estado", "!=", "Eliminado")->first();
+        $user = User::where("correoElectronico", $this->request->input("email"))->where("estado", "!=", "Eliminado")->first();
 
         if(!$user){
             return response()->json([
-                "message" => "El Usuario ingresado no existe, en nuestra plataforma.",
+                "message" => "El Correo Electronico ingresado no existe, en nuestra plataforma.",
                 "status" => false
-            ], 400);
+            ], 202);
         }
 
         if($user->estado == "Suspendido"){
             return response()->json([
-                "message" => "Lo sentimos el usuario estan suspendido, comunicate con un administrador.",
-                "status" => true
-            ], 400);
+                "message" => "Lo sentimos el Correo Electronico estan suspendido, comunicate con un administrador.",
+                "status" => false
+            ], 202);
         }
 
         if(Hash::check($this->request->input("password"), $user->password)){
@@ -71,7 +71,7 @@ class AuthController extends Controller
             return response()->json([
                 "message" => "La contraseña ingresada es incorrecta, por favor vuelva a intentarlo",
                 "status" => false
-            ], 400);
+            ], 202);
         }
 
 

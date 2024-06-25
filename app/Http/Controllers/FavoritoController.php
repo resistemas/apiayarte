@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Validator;
 class FavoritoController extends Controller
 {
     private $request;
+    private $modulo = "Favoritos";
 
     public function __construct(Request $request)
     {
@@ -28,9 +29,20 @@ class FavoritoController extends Controller
                 "message" => "Campos Requeridos",
                 "status" => false,
                 "data" => $validate->errors()
-            ], 400);
+            ], 202);
         }
-        
+
+        $verify = Favorito::where("cliente_id", $this->request->input("cliente_id"))
+        ->where("producto_id", $this->request->input("producto_id"))
+        ->where("estado", "Activo")->get();
+
+        if(!$verify->isEmpty()){
+            return response()->json([
+                'message' => "La artesania ya existe en la lista de " . $this->modulo.".",
+                'status' => false
+            ],202);
+        }
+
         $req = Favorito::create([
             "cliente_id" =>$this->request->input("cliente_id"),
             "producto_id" =>$this->request->input("producto_id"),
@@ -39,25 +51,25 @@ class FavoritoController extends Controller
 
         if($req){
             return response()->json([
-                'message' => "Favoritos, Agregado Correctamente",
+                'message' => $this->modulo.", Agregado Correctamente",
                 'status' => true,
-                'data' => $req
+                'data' => [$req]
             ], 200);
         }
 
         return response()->json([
             'message' => "Sucedio algo al proceder con la solicitud.",
             'status' => false
-        ],402);
-        
-    }    
+        ],202);
+
+    }
 
     public function destroy($favorito){
         if($favorito == ""){
             return response()->json([
                 'message' => "Sucedio algo al proceder con la solicitud.",
                 'status' => false
-            ],402);
+            ],202);
         }
 
         $req = Favorito::find($favorito);
@@ -67,16 +79,16 @@ class FavoritoController extends Controller
 
         if($req){
             return response()->json([
-                'message' => "Favorito, Eliminado Correctamente",
+                'message' => $this->modulo.", Eliminado Correctamente",
                 'status' => true,
-                'data' => $req
+                'data' => [$req]
             ], 200);
         }
 
         return response()->json([
             'message' => "Sucedio algo al proceder con la solicitud.",
             'status' => false
-        ],402);
+        ],202);
 
     }
 
@@ -86,29 +98,32 @@ class FavoritoController extends Controller
             return response()->json([
                 'message' => "Sucedio algo al proceder con la solicitud.",
                 'status' => false
-            ],402);
+            ],202);
         }
 
         $items = Favorito::with("cliente:id,codigo,nombresApellidos,usuario")
-        ->with("producto:id,categoria_id,codigo,producto,descripcion,photo_video,precio,estado")
+        ->with(["producto" => function($query){
+            $query->with("vendedor:id,nombresApellidos")->with("categoria:id,categoria")
+            ->select("id","usuario_id","categoria_id","codigo","producto","descripcion","photo_video","precio","estado");
+        }])
         ->select('id','cliente_id','producto_id','estado')
         ->where("cliente_id",$usuario)->where('estado','<>','Eliminado')
         ->orderBy('id','asc')->get();
 
         if($items->isEmpty()){
             return response()->json([
-                'message' => "Listado de Favoritos",
+                'message' => "Usted aun no tiene Artisanias ".$this->modulo.".",
                 'status' => false
-            ],402);
+            ],202);
         }
 
         return response()->json([
-            'message' => "Listado de Favoritos",
+            'message' => "Listado de sus Artesanias ".$this->modulo.".",
             'status' => true,
             'data' => $items
         ], 200);
 
 
-    }  
-    
+    }
+
 }

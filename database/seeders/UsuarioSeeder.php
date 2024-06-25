@@ -55,7 +55,7 @@ class UsuarioSeeder extends Seeder
             "rol_id" => 3,
             "codigo" => Str::upper(Str::random(10)),
             "nombresApellidos" => "JOSE QUISPE AQUINO",
-            "correoElectronico" => "josequispe@gmail.com",
+            "correoElectronico" => "    ",
             "usuario" => "Josefita",
             "password" => Hash::make("Admin123")
         ]);

@@ -25,11 +25,19 @@ class JwtMiddleware
             return response()->json([
                 "message" => "Se requiere un token",
                 "status" => false,
-            ], 401);
+            ], 202);
         }
 
         $array_token = explode(" ", $request->header("Authorization"));
         $token = $array_token[1];
+
+        if($token == "Token.Nulled"){
+            return response()->json([
+                "message" => "El token a expirado",
+                "status" => false
+            ], 202);
+
+        }
 
         try {
             $credentials = JWT::decode($token, new Key(env("JWT_SECRET"), "HS256"));
@@ -37,12 +45,12 @@ class JwtMiddleware
             return response()->json([
                 "message" => "El token a expirado",
                 "status" => false
-            ], 400);
+            ], 202);
         } catch (Exception $e){
             return response()->json([
                 "message" => "Ago salio mal al verificar el token",
                 "status" => false
-            ], 400);
+            ], 202);
         }
 
         $user = User::with('roles:id,rol,estado')->find($credentials->sub->id);
@@ -50,5 +58,8 @@ class JwtMiddleware
         $request->auth = $user;
 
         return $next($request);
+
+
+
     }
 }

@@ -19,7 +19,7 @@ class Favorito extends Model
 
     public function producto()
     {
-        return $this->belongsTo(producto::class, 'producto_id');
+        return $this->belongsTo(Producto::class, 'producto_id');
     }
-    
+
 }

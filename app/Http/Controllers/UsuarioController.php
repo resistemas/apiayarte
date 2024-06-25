@@ -20,23 +20,23 @@ class UsuarioController extends Controller
 
     public function showUsuario()
     {
-        $user = User::with("roles:id,rol,estado")->find($this->request->auth);
+        $user = User::with('roles:id,rol,estado')->find($this->request->auth->id);
         return response()->json([
             "message" => "Usuario autenticado",
             "status" => true,
-            "data" => $user
+            "data" => [$user],
         ], 200);
     }
 
     public function store(){
 
         $validate = Validator::make($this->request->all(),[
-            "rol_id" => "required|string",
+            "rol_id" => "required|integer",
             "nombresApellidos" => "required|string",
             "correoElectronico" => "required|string|email",
-            "photo_video" => "required|string",
-            "usuario" => "required1string",
-            "password" => "required|string|min:8|regex:/^(?=.[a-z])(?=.[A-Z])(?=.\d)(?=.(_|[^\w])).+$/",
+            "photo" => "required|string",
+            "usuario" => "required|string",
+            "password" => "required|string|min:8|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d$@$!%*?&]{8,15}/",
             "estado" => "required|string"
         ]);
 
@@ -48,12 +48,21 @@ class UsuarioController extends Controller
             ], 400);
         }
 
+        $very = User::Where("correoElectronico",$this->request->input("correoElectronico"))->where("estado","<>","Elimiando")->get();
+
+        if(!$very->isEmpty()){
+            return response()->json([
+                'message' => "El Correo: ". $this->request->input("correoElectronico") . ", Ya se encuentra en uso.",
+                'status' => false
+            ],402);
+        }
+
         $req = User::create([
             "rol_id" => $this->request->input("rol_id"),
             "codigo" => Str::upper(Str::random(10)),
             "nombresApellidos" => $this->request->input("nombresApellidos"),
             "correoElectronico" => $this->request->input("correoElectronico"),
-            "photo_video" => $this->request->input("photo_video"),
+            "photo" => $this->request->input("photo"),
             "usuario" => $this->request->input("usuario"),
             "password" => Hash::make($this->request->input("password")),
             "estado" => $this->request->input("estado"),
@@ -63,7 +72,7 @@ class UsuarioController extends Controller
             return response()->json([
                 'message' => $this->modulo . ", Agregado Correctamente",
                 'status' => true,
-                'data' => $req
+                'data' => [$req]
             ], 200);
         }else{
             return response()->json([
@@ -83,12 +92,12 @@ class UsuarioController extends Controller
         }
 
         $validate = Validator::make($this->request->all(),[
-            "rol_id" => "required|string",
+            "rol_id" => "required|integer",
             "nombresApellidos" => "required|string",
             "correoElectronico" => "required|string|email",
-            "photo_video" => "required|string",
-            "usuario" => "required1string",
-            "password" => $this->request->input("password") == "" ? "" : "required|string|min:8|regex:/^(?=.[a-z])(?=.[A-Z])(?=.\d)(?=.(_|[^\w])).+$/",
+            "photo" => "required|string",
+            "usuario" => "required|string",
+            "password" => $this->request->input("password") == "" ? "" : "required|string|min:8|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d$@$!%*?&]{8,15}/",
             "estado" => "required|string"
         ]);
 
@@ -106,7 +115,7 @@ class UsuarioController extends Controller
             "rol_id" => $this->request->input("rol_id"),
             "nombresApellidos" => $this->request->input("nombresApellidos"),
             "correoElectronico" => $this->request->input("correoElectronico"),
-            "photo_video" => $this->request->input("photo_video"),
+            "photo" => $this->request->input("photo"),
             "usuario" => $this->request->input("usuario"),
             "password" => $this->request->input("password") == "" ? $req->password : Hash::make($this->request->input("password")),
             "estado" => $this->request->input("estado"),
@@ -116,7 +125,7 @@ class UsuarioController extends Controller
             return response()->json([
                 'message' => $this->modulo . ", Actualizado Correctamente",
                 'status' => true,
-                'data' => $req
+                'data' => [$req]
             ], 200);
         }
 
@@ -143,7 +152,7 @@ class UsuarioController extends Controller
             return response()->json([
                 'message' => $this->modulo . ", Eliminado Correctamente",
                 'status' => true,
-                'data' => $req
+                'data' => [$req]
             ], 200);
         }
 
@@ -156,7 +165,7 @@ class UsuarioController extends Controller
 
     public function show(){
 
-        $items = User::with('rol:id,rol')->select('id','rol_id','codigo','nombresApellidos','correoElectronico','photo','usuario','estado')
+        $items = User::with('roles:id,rol')->select('id','rol_id','codigo','nombresApellidos','correoElectronico','photo','usuario','estado')
         ->where('estado','<>','Eliminado')
         ->orderBy('id','asc')->get();
 
