@@ -54,7 +54,7 @@ class UsuarioController extends Controller
             return response()->json([
                 'message' => "El Correo: ". $this->request->input("correoElectronico") . ", Ya se encuentra en uso.",
                 'status' => false
-            ],402);
+            ],202);
         }
 
         $req = User::create([
@@ -78,7 +78,7 @@ class UsuarioController extends Controller
             return response()->json([
                 'message' => "Sucedio algo al proceder con la solicitud.",
                 'status' => false
-            ],402);
+            ],202);
         }
 
     }
@@ -88,7 +88,7 @@ class UsuarioController extends Controller
             return response()->json([
                 'message' => "Sucedio algo al proceder con la solicitud.",
                 'status' => false
-            ],402);
+            ],202);
         }
 
         $validate = Validator::make($this->request->all(),[
@@ -132,7 +132,7 @@ class UsuarioController extends Controller
         return response()->json([
             'message' => "Sucedio algo al proceder con la solicitud.",
             'status' => false
-        ],402);
+        ],202);
     }
 
     public function destroy($usuario){
@@ -140,7 +140,7 @@ class UsuarioController extends Controller
             return response()->json([
                 'message' => "Sucedio algo al proceder con la solicitud.",
                 'status' => false
-            ],402);
+            ],202);
         }
 
         $req = User::find($usuario);
@@ -159,7 +159,7 @@ class UsuarioController extends Controller
         return response()->json([
             'message' => "Sucedio algo al proceder con la solicitud.",
             'status' => false
-        ],402);
+        ],202);
 
     }
 
@@ -173,7 +173,7 @@ class UsuarioController extends Controller
             return response()->json([
                 'message' => "Listado de " . $this->modulo,
                 'status' => false
-            ],402);
+            ],202);
         }
 
         return response()->json([
@@ -190,7 +190,7 @@ class UsuarioController extends Controller
             return response()->json([
                 'message' => "Sucedio algo al proceder con la solicitud.",
                 'status' => false
-            ],402);
+            ],202);
         }
 
         $item = User::with('rol:id,rol')->select('id','rol_id','codigo','nombresApellidos','correoElectronico','photo','usuario','estado')
@@ -200,7 +200,7 @@ class UsuarioController extends Controller
             return response()->json([
                 'message' => $this->modulo . " Detalle",
                 'status' => false
-            ],402);
+            ],202);
         }
 
         return response()->json([

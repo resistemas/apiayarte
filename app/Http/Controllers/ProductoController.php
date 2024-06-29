@@ -60,7 +60,7 @@ class ProductoController extends Controller
         return response()->json([
             'message' => "Sucedio algo al proceder con la solicitud.",
             'status' => false
-        ],402);
+        ],202);
     }
 
     public function update($producto){
@@ -68,7 +68,7 @@ class ProductoController extends Controller
             return response()->json([
                 'message' => "Sucedio algo al proceder con la solicitud.",
                 'status' => false
-            ],402);
+            ],202);
         }
 
         $validate = Validator::make($this->request->all(),[
@@ -113,7 +113,7 @@ class ProductoController extends Controller
         return response()->json([
             'message' => "Sucedio algo al proceder con la solicitud.",
             'status' => false
-        ],402);
+        ],202);
     }
 
     public function destroy($producto){
@@ -121,7 +121,7 @@ class ProductoController extends Controller
             return response()->json([
                 'message' => "Sucedio algo al proceder con la solicitud.",
                 'status' => false
-            ],402);
+            ],202);
         }
 
         $req = Producto::find($producto);
@@ -140,7 +140,7 @@ class ProductoController extends Controller
         return response()->json([
             'message' => "Sucedio algo al proceder con la solicitud.",
             'status' => false
-        ],402);
+        ],202);
 
     }
 
@@ -149,7 +149,7 @@ class ProductoController extends Controller
             return response()->json([
                 'message' => "Sucedio algo al proceder con la solicitud.",
                 'status' => false
-            ],402);
+            ],202);
         }
 
         $producto = Producto::with('vendedor:id,nombresApellidos,photo')->with('categoria:id,categoria')
@@ -161,7 +161,7 @@ class ProductoController extends Controller
             return response()->json([
                 'message' => "Listado de " . $this->modulo,
                 'status' => false
-            ],402);
+            ],202);
         }
 
         return response()->json([
@@ -184,7 +184,7 @@ class ProductoController extends Controller
             return response()->json([
                 'message' => $this->modulo. " Mas Vendidos",
                 'status' => false
-            ],402);
+            ],202);
         }
 
         return response()->json([
@@ -205,7 +205,7 @@ class ProductoController extends Controller
             return response()->json([
                 'message' => $this->modulo . " Nuevos",
                 'status' => false
-            ],402);
+            ],202);
         }
 
         return response()->json([
@@ -224,7 +224,7 @@ class ProductoController extends Controller
             return response()->json([
                 'message' => $this->modulo . " Detalle",
                 'status' => false
-            ],402);
+            ],202);
         }
 
         return response()->json([
@@ -243,7 +243,7 @@ class ProductoController extends Controller
             return response()->json([
                 'message' => $this->modulo . " Relacionados",
                 'status' => false
-            ],402);
+            ],202);
         }
 
         return response()->json([
@@ -252,4 +252,63 @@ class ProductoController extends Controller
             'data' => $producto
         ],200);
     }
+
+    public function buscarProducto($buscado){
+        if($buscado == ""){
+            return response()->json([
+                'message' => $this->modulo . " lo que buscas no se pudo encontrar: " . $buscado,
+                'status' => false
+            ],202);
+        }
+
+        $producto = Producto::with('vendedor:id,nombresApellidos,photo')->with(['categoria' => function($query) use($buscado){
+            $query->select('id','categoria');
+        }])
+        ->select('id','usuario_id','categoria_id','codigo','producto','descripcion','photo_video','precio','estado')
+        ->orWhere('producto', 'LIKE', '%'.$buscado.'%')
+        ->orderBy('id','asc')->get();
+
+        if($producto->isEmpty()){
+            return response()->json([
+                'message' => "Listado de " . $this->modulo,
+                'status' => false
+            ],202);
+        }
+
+        return response()->json([
+            'message' => "Listado de " . $this->modulo,
+            'status' => true,
+            'data' => $producto
+        ], 200);
+    }
+
+    public function buscarProductoCategoria($categoria){
+        if($categoria == ""){
+            return response()->json([
+                'message' => $this->modulo . " lo que buscas no se pudo encontrar: " . $categoria,
+                'status' => false
+            ],202);
+        }
+
+        $producto = Producto::with('vendedor:id,nombresApellidos,photo')->with('categoria:id,categoria')
+        ->select('id','usuario_id','categoria_id','codigo','producto','descripcion','photo_video','precio','estado')
+        ->where('categoria_id', $categoria)
+        ->orderBy('id','asc')->get();
+
+        var_dump($producto);
+
+        if($producto->isEmpty()){
+            return response()->json([
+                'message' => "Listado de " . $this->modulo,
+                'status' => false
+            ],202);
+        }
+
+        return response()->json([
+            'message' => "Listado de " . $this->modulo,
+            'status' => true,
+            'data' => $producto
+        ], 200);
+    }
+
 }

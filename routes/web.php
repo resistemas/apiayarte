@@ -43,7 +43,6 @@ $router->group(["middleware" => "jwt.auth"], function() use ($router){
     $router->delete("/producto/{producto}/destroy", ["uses" => "ProductoController@destroy"]);
 
     //RUTAS DE CATEGORIAS
-    $router->get("/categoria/lista", ["uses" => "CategoriaController@show"]);
     $router->post("/categoria", ["uses" => "CategoriaController@store"]);
     $router->put("/categoria/{categoria}/update", ["uses" => "CategoriaController@update"]);
     $router->delete("/categoria/{categoria}/destroy", ["uses" => "CategoriaController@destroy"]);
@@ -53,6 +52,17 @@ $router->group(["middleware" => "jwt.auth"], function() use ($router){
     $router->get("/favorito/{usuario}/lista", ["uses" => "FavoritoController@show"]);
     $router->post("/favorito", ["uses" => "FavoritoController@store"]);
     $router->delete("/favorito/{favorito}/destroy", ["uses" => "FavoritoController@destroy"]);
+
+    //RUTAS DE VENTA
+    $router->get("/venta/lista", ["uses" => "VentaController@show"]);
+    $router->post("/venta", ["uses" => "VentaController@store"]);
+    $router->put("/venta/{venta}/update", ["uses" => "VentaController@update"]);
+    $router->get("/venta/{venta}/detalle", ["uses" => "VentaController@showVenta"]);
+    $router->get("/venta/{cliente}/cliente", ["uses" => "VentaController@showVentaCliente"]);
+    $router->get("/venta/{artesano}/artesano", ["uses" => "VentaController@showVentaArtesano"]);
+
+    //RUTAS DE VENTA DETALLE
+    $router->get("/venta-detalle/{venta}/lista", ["uses" => "VentaDetalleController@show"]);
 });
 
 // RUTAS DE USUARIO
@@ -60,7 +70,12 @@ $router->post("/auth/login", ["uses" => "AuthController@authenticate"]);
 $router->post("/usuario", ["uses" => "UsuarioController@store"]);
 
 //RUTAS DE PRODUCTOS PUBLICO
+$router->get("/producto/{buscado}/buscar", ["uses" => "ProductoController@buscarProducto"]);
+$router->get("producto/{categoria}/categorias", ["uses" => "ProductoController@buscarProductoCategoria"]);
 $router->get("/producto/masvendido", ["uses" => "ProductoController@masVendidos"]);
 $router->get("/producto/nuevos", ["uses" => "ProductoController@nuevos"]);
 $router->get("/producto/{producto}/detalle", ["uses" => "ProductoController@detalle"]);
 $router->get("/producto/{categoria}/relacionado", ["uses" => "ProductoController@productoRelacionado"]);
+
+//RUTAS DE CATEGORIAS PUBLICO
+$router->get("/categoria/lista", ["uses" => "CategoriaController@show"]);
